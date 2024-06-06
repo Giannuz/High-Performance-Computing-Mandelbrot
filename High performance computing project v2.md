@@ -376,6 +376,12 @@ It could perhaps be solved by swapping the innermost for and one of the two oute
 
 ### Results
 
+| ![](assets/2024-06-06-17-01-07-image.png) | ![](assets/2024-06-06-17-01-18-image.png) |
+| ----------------------------------------- | ----------------------------------------- |
+
+| ![](assets/2024-06-06-17-03-36-image.png) | ![](assets/2024-06-06-17-03-46-image.png) |
+| ----------------------------------------- | ----------------------------------------- |
+
 <mark>INSERIRE GRAFICI QUÌ (first 2 or 3 graphs in "Grafici Tempi" and "Grafici Speedup")</mark>
 
 As we can see the compiler (with the right flags) is able to significantly improve the execution time of the original script (and all our variants), the codes that have benefited the most are from mandelbrot6 to mandelbrot8a, reaching execution times with the basic resolution (1k-1k) of 1.7s against the 5 seconds of the original version in the best case.
@@ -427,6 +433,10 @@ As we said, the 8a has been modified to allow us to add the "omp for" pragma. We
 
 ### Results
 
+| ![](assets/2024-06-06-17-12-57-image.png) | ![](assets/2024-06-06-17-13-36-image.png) |
+| ----------------------------------------- | ----------------------------------------- |
+| ![](assets/2024-06-06-17-12-14-image.png) | ![](assets/2024-06-06-17-12-02-image.png) |
+
 <mark>INSERIRE GRAFICI QUÌ (first 2 graphs on the third row in "Grafici Tempi" and "Grafici Speedup")</mark>
 
 The image on the left gives a more detailed idea of execution times with different thread configurations while the one on the right shows us the same thing but with an exponential trend in order to have a more general view (both generated with flags Ofast and xHost).
@@ -439,6 +449,10 @@ Given these reasons (and thanks to the help of some tests) we opted for a schedu
 ```cpp
 #pragma omp parallel for schedule(dynamic, 1)
 ```
+
+| ![](assets/2024-06-06-17-14-18-image.png) | ![](assets/2024-06-06-17-14-31-image.png) |
+| ----------------------------------------- | ----------------------------------------- |
+| ![](assets/2024-06-06-17-15-07-image.png) | ![](assets/2024-06-06-17-15-18-image.png) |
 
 <mark>INSERIRE GRAFICI QUÌ (first 2 graphs on the fourth row in "Grafici Tempi" and "Grafici Speedup")</mark>
 
@@ -637,9 +651,10 @@ We have included four different versions:
 
 ###### Results
 
-| ![](assets/2024-05-03-11-23-51-Senza%20titolo.png) | ![](assets/2024-05-03-11-23-55-Senza%20titolo.png) |
-| -------------------------------------------------- | -------------------------------------------------- |
-(Add all remaining cuda graphs and all the other ones in "Grafici Tempi" and "Grafici Speedup" that are usefull)
+| ![](assets/2024-05-03-11-23-51-Senza%20titolo.png)                         | ![](assets/2024-05-03-11-23-55-Senza%20titolo.png)                          |
+| -------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| ![](assets/2024-06-06-17-33-32-time_data_cuda_1k1k%20-%20mandelbrot6c.png) | ![](assets/2024-06-06-17-33-45-time_data_cuda_1k10k%20-%20mandelbrot6c.png) |
+| ![](assets/2024-06-06-17-34-11-time_data_cuda_1k1k%20-%20mandelbrot6d.png) | ![](assets/2024-06-06-17-34-24-time_data_cuda_10k1k%20-%20mandelbrot6c.png) |
 
 These graphs (generated with flags Ofast and xHost) were created with the 1k-1k configuration and due to the size of it the results are more or less quite similar, with the 6c being slightly better.
 
