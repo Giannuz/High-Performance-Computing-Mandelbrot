@@ -105,7 +105,7 @@ const double step_width = STEP/WIDTH;
 
 This modification can be found in the file mandelbrot1.cpp
 
----
+<div style="page-break-after: always; break-after: page;"></div>
 
 The next change was to split the outermost `for` so as to exploit 2 different coordinates (X,Y) in order to have more freedom when parallelising and because in this way we can avoid calculating the variable `col` at each iteration.
 
@@ -138,7 +138,7 @@ for (int y = 0; y < HEIGHT; y++)
 
 This modification can be found in the file mandelbrot2.cpp
 
----
+<div style="page-break-after: always; break-after: page;"></div>
 
 We then moved the entire imaginary part of the variable c outside the loop `for (int x = 0; x < WIDTH; x++)` as it is sufficient to calculate it once as well (we did not do the same with `y * WIDTH` in `const int pos = y * WIDTH + x;` as it would then be converted into a fma and thus it make no difference).
 
@@ -172,7 +172,7 @@ for (int y = 0; y < HEIGHT; y++)
 
 This modification can be found in the file mandelbrot3.cpp
 
----
+<div style="page-break-after: always; break-after: page;"></div>
 
 The next modification we decided to make is to exploit the symmetry of the complex numbers (with the assumption, however, that the considered area is symmetrical with respect to the real axis). Specifically, we have halved the period of the outermost for loop and within the loop of `x` we have also inserted the calculation of the conjugate complex of the respective `pos` position to "mirror" the result. We opted to divide only the period of the loop of y also to access the array with unitary steps rather than constant ones.
 
@@ -209,7 +209,7 @@ const int HALF_HEIGHT = ceil((float) HEIGHT/2);
 
 This modification can be found in the file mandelbrot4.cpp
 
----
+<div style="page-break-after: always; break-after: page;"></div>
 
 Another small change we made was to move the part `(HEIGHT - y - 1)` in `pos2 = (HEIGHT - y - 1) * WIDTH + x;` outside the for loop, again to avoid calculating the same result several times. (in this case too we have left WIDTH inside the for loop because it is then converted into an fma).
 
@@ -246,7 +246,7 @@ for (int y = 0; y < HALF_HEIGHT; y++)
 
 This modification can be found in the file mandelbrot5.cpp
 
----
+<div style="page-break-after: always; break-after: page;"></div>
 
 We then removed the complex library, but made an important assumption: we only consider the maderblot generation function to be of order 2.
 
@@ -289,7 +289,7 @@ for (int y = 0; y < HALF_HEIGHT; y++)
 
 This modification can be found in the file mandelbrot6.cpp
 
----
+<div style="page-break-after: always; break-after: page;"></div>
 
 A further small change we made was to add the calculation of `zr` and `zr2` to have all the expressions in a fma format (it is an operation that the compiler theoretically carries out automatically but we wanted to make it explicit).
 
@@ -313,7 +313,7 @@ zi = zr * zi + ci;
 
 This modification can be found in the file mandelbrot7.cpp
 
----
+<div style="page-break-after: always; break-after: page;"></div>
 
 We then tried to move the copy of `pos2` data outside of all the for loops in order to obtain sequential (and therefore faster) data access
 
@@ -374,13 +374,15 @@ It could perhaps be solved by swapping the innermost for and one of the two oute
 
 ---
 
-##### Results
+### Results
 
 <mark>INSERIRE GRAFICO QUÌ</mark>
 
 As we can see the compiler (with the right flags) is able to significantly improve the execution time of the original script (and all our variants), the codes that have benefited the most are from mandelbrot6 to mandelbrot8a, reaching execution times with the basic resolution (1k-1k) of 1.7s against the 5 seconds of the original version in the best case.
 
-#### Parallelization
+<div style="page-break-after: always; break-after: page;"></div>
+
+### Parallelization
 
 From here onwards we will only consider the mandelbrot6-7-8a versions for parallelization as they are the ones that have proven to be the best.
 
@@ -421,7 +423,9 @@ As we said, the 8a has been modified to allow us to add the "omp for" pragma. We
     }
 ```
 
-##### Results
+<div style="page-break-after: always; break-after: page;"></div>
+
+### Results
 
 <mark>INSERIRE GRAFICI QUÌ</mark>
 
