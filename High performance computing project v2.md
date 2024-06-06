@@ -376,7 +376,7 @@ It could perhaps be solved by swapping the innermost for and one of the two oute
 
 ### Results
 
-<mark>INSERIRE GRAFICO QUÌ</mark>
+<mark>INSERIRE GRAFICI QUÌ (first 2 or 3 graphs in "Grafici Tempi" and "Grafici Speedup")</mark>
 
 As we can see the compiler (with the right flags) is able to significantly improve the execution time of the original script (and all our variants), the codes that have benefited the most are from mandelbrot6 to mandelbrot8a, reaching execution times with the basic resolution (1k-1k) of 1.7s against the 5 seconds of the original version in the best case.
 
@@ -427,7 +427,7 @@ As we said, the 8a has been modified to allow us to add the "omp for" pragma. We
 
 ### Results
 
-<mark>INSERIRE GRAFICI QUÌ</mark>
+<mark>INSERIRE GRAFICI QUÌ (first 2 graphs on the third row in "Grafici Tempi" and "Grafici Speedup")</mark>
 
 The image on the left gives a more detailed idea of execution times with different thread configurations while the one on the right shows us the same thing but with an exponential trend in order to have a more general view (both generated with flags Ofast and xHost).
 
@@ -440,7 +440,7 @@ Given these reasons (and thanks to the help of some tests) we opted for a schedu
 #pragma omp parallel for schedule(dynamic, 1)
 ```
 
-<mark>INSERIRE GRAFICI QUÌ</mark>
+<mark>INSERIRE GRAFICI QUÌ (first 2 graphs on the fourth row in "Grafici Tempi" and "Grafici Speedup")</mark>
 
 As is evident, scheduling greatly improves code execution compared to versions that do not support it.
 
@@ -639,6 +639,7 @@ We have included four different versions:
 
 | ![](assets/2024-05-03-11-23-51-Senza%20titolo.png) | ![](assets/2024-05-03-11-23-55-Senza%20titolo.png) |
 | -------------------------------------------------- | -------------------------------------------------- |
+(Add all remaining cuda graphs and all the other ones in "Grafici Tempi" and "Grafici Speedup" that are usefull)
 
 These graphs (generated with flags Ofast and xHost) were created with the 1k-1k configuration and due to the size of it the results are more or less quite similar, with the 6c being slightly better.
 
