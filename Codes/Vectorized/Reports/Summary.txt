@@ -1,0 +1,21 @@
+Reports:
+- mandelbrot: nothing is vectorized, suggests loop interchange and SIMD directive (for outer loop).
+- mandelbrot1: nothing is vectorized, suggests loop interchange and SIMD directive (for outer loop).
+- mandelbrot2: nothing is vectorized and suggests SIMD directive (for both outer loops).
+- mandelbrot3: nothing is vectorized, suggests loop interchange (between the two inner ones) [not to do because it's not worth it] and SIMD directive (for both outer loops) [as tested in mandelbrot7b it's not worth it].
+- mandelbrot4: nothing is vectorized, suggests loop interchange (between the two inner ones) [not to do because it's not worth it] and SIMD directive (for both outer loops) [as tested in mandelbrot7b it's not worth it].
+- mandelbrot5: nothing is vectorized, suggests loop interchange (between the two inner ones) [not to do because it's not worth it] and SIMD directive (for both outer loops) [as tested in mandelbrot7b it's not worth it].
+- mandelbrot6: nothing is vectorized, suggests loop interchange (between the two inner ones) [not to do because it's not worth it] and SIMD directive (for both outer loops) [as tested in mandelbrot7b it's not worth it].
+- mandelbrot7: nothing is vectorized, suggests loop interchange (between the two inner ones) [not to do because it's not worth it] and SIMD directive (for both outer loops) [as tested in mandelbrot7b it's not worth it].
+- mandelbrot8a: nothing is vectorized, suggests loop interchange (between the two inner ones) [not to do because it's not worth it] and SIMD directive (for both outer loops) [as tested in mandelbrot7b it's not worth it].
+
+Results [check images for reference]:
+- mandelbrot: correct.
+- mandelbrot1: errors on the border region.
+- mandelbrot2: correct.
+- mandelbrot3: correct.
+- mandelbrot4: errors on the half-bottom border [acceptable].
+- mandelbrot5: errors on the half-bottom border [acceptable] and on the real axis (fixed).
+- mandelbrot6: errors on the half-bottom border [acceptable].
+- mandelbrot7: errors on the half-bottom border [acceptable].
+- mandelbrot8a: errors on the half-bottom border [acceptable].
