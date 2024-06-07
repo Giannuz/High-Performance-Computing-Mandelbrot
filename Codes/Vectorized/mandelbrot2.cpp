@@ -31,6 +31,9 @@ int main(int argc, char **argv)
 
     const auto start = chrono::steady_clock::now();
 
+    // We split the outermost for so as to have more freedom in parallelization 
+    // and to avoid calculating the variable 'col' more than necessary
+
     for (int y = 0; y < HEIGHT; y++)
     {
         for (int x = 0; x < WIDTH; x++)

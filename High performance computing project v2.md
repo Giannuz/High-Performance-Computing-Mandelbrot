@@ -132,7 +132,7 @@ const double step_width = STEP/WIDTH;
     }
 ```
 
-This modification can be found in the file mandelbrot1.cpp
+This modification can be found in the file Vectorized/mandelbrot1.cpp
 
 <div style="page-break-after: always; break-after: page;"></div>
 
@@ -165,7 +165,7 @@ for (int y = 0; y < HEIGHT; y++)
     }
 ```
 
-This modification can be found in the file mandelbrot2.cpp
+This modification can be found in the file Vectorized/mandelbrot2.cpp
 
 <div style="page-break-after: always; break-after: page;"></div>
 
@@ -199,7 +199,7 @@ for (int y = 0; y < HEIGHT; y++)
     }
 ```
 
-This modification can be found in the file mandelbrot3.cpp
+This modification can be found in the file Vectorized/mandelbrot3.cpp
 
 <div style="page-break-after: always; break-after: page;"></div>
 
@@ -236,7 +236,7 @@ const int HALF_HEIGHT = ceil((float) HEIGHT/2);
     }
 ```
 
-This modification can be found in the file mandelbrot4.cpp
+This modification can be found in the file Vectorized/mandelbrot4.cpp
 
 <div style="page-break-after: always; break-after: page;"></div>
 
@@ -273,7 +273,7 @@ for (int y = 0; y < HALF_HEIGHT; y++)
     }
 ```
 
-This modification can be found in the file mandelbrot5.cpp
+This modification can be found in the file Vectorized/mandelbrot5.cpp
 
 <div style="page-break-after: always; break-after: page;"></div>
 
@@ -316,7 +316,7 @@ for (int y = 0; y < HALF_HEIGHT; y++)
     }
 ```
 
-This modification can be found in the file mandelbrot6.cpp
+This modification can be found in the file Vectorized/mandelbrot6.cpp
 
 <div style="page-break-after: always; break-after: page;"></div>
 
@@ -340,7 +340,7 @@ zi = zr * zi + ci;
                 zr2 -= zi2;
 ```
 
-This modification can be found in the file mandelbrot7.cpp
+This modification can be found in the file Vectorized/mandelbrot7.cpp
 
 <div style="page-break-after: always; break-after: page;"></div>
 
@@ -391,7 +391,7 @@ for (int y = 0; y < HALF_HEIGHT; y++)
     } 
 ```
 
-This modification can be found in the file mandelbrot8a.cpp
+This modification can be found in the file Vectorized/mandelbrot8a.cpp
 
 We have also tried to align the image array for faster data access, but there is not enough space to align such a large array.
 
@@ -431,7 +431,7 @@ The changes we have made are limited to adding pragmas:
     }
 ```
 
-This modification can be found in the file mandelbrot6.cpp
+This modification can be found in the file OpenMP/Base/mandelbrot6.cpp
 
 We then created two versions of mandelbrot7 (7a and 7b). Version 7a underwent the same modifications as mandelbrot6, while maintaining the original differences between the two files. In version 7b, in addition to these modifications, we added the `simd` instruction. The execution times for the three codes are similar, so the `simd` instruction was tested only in mandelbrot7b.
 
@@ -711,3 +711,14 @@ Below we report the results of the processing carried out with the remaining con
 <mark>GRAFICI QUÌ</mark>
 
 As you can see, the parallelized versions are better than the parallelized versions and, specifically, those obtained with OMP are the best (speedup of 500), as we have already seen for the 1k-1k configuration, as the size of the problem increases, the gap in terms of performance between the various versions remains unchanged.
+
+<div style="page-break-after: always; break-after: page;"></div>
+
+Some renderings of the results we got by running the optimized codes:
+
+| ![](assets/rendering.jpg) | ![](assets/rendering2.jpg) |
+| ------------------------- | -------------------------- |
+
+![](assets/2024-06-07-15-48-45-image.png)
+
+The code used to convert the text output to image can be found on Google Colab.

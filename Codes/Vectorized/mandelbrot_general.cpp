@@ -29,6 +29,10 @@ int main(int argc, char **argv)
 {
     int *const image = new int[HEIGHT * WIDTH];
 
+    // iterates over each pixel in the image by calculating whether the corresponding points in the complex plane 
+    // are part of the Mandelbrot set. For each point c (complex), start with z=0 and iterate z=z2+c up to a maximum of `ITERATIONS` 
+    // times. If the modulus of z becomes greater than or equal to 2, the point is considered not to belong to the set
+
     const auto start = chrono::steady_clock::now();
     for (int pos = 0; pos < HEIGHT * WIDTH; pos++)
     {

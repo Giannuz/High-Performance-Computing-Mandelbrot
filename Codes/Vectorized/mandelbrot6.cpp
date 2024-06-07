@@ -25,6 +25,8 @@
 
 using namespace std;
 
+// we no longer use the complex library
+
 int main(int argc, char **argv)
 {
     int *const image = new int[HEIGHT * WIDTH];
@@ -35,7 +37,7 @@ int main(int argc, char **argv)
 
     for (int y = 0; y < HALF_HEIGHT; y++)
     {
-        const double ci = y * STEP + MIN_Y;
+        const double ci = y * STEP + MIN_Y; // imaginary part of c in the form of double
         const int y2 = HEIGHT - y - 1;
         
         for (int x = 0; x < WIDTH; x++)
@@ -50,14 +52,14 @@ int main(int argc, char **argv)
             double zr = 0.0, zi = 0.0, zr2 = 0.0, zi2 = 0.0;
             for (int i = 1; i <= ITERATIONS; i++)
             {
-                zi = 2 * zr * zi + ci;
+                zi = 2 * zr * zi + ci; // imaginary part of z in the form of double
                 zr = zr2 - zi2 + cr;
 
                 zr2 = zr * zr;
                 zi2 = zi * zi;
 
                 // If it is convergent
-                if (zr2 + zi2 >= 4)
+                if (zr2 + zi2 >= 4) // we no longer use the expensive abs(z) >= 2
                 {
                     image[pos1] = image[pos2] = i;
                     break;

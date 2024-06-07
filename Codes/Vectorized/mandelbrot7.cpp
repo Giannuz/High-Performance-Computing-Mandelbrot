@@ -50,6 +50,10 @@ int main(int argc, char **argv)
             double zr = 0.0, zi = 0.0, zr2 = 0.0, zi2 = 0.0;
             for (int i = 1; i <= ITERATIONS; i++)
             {
+                
+                // we make it explicit that we want zr and zr2 in fma format; 
+                //theoretically this is unnecessary since the compiler should take care of it automatically
+                
                 zi = zr * zi + ci;
                 zr = zr2 + cr;
 

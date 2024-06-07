@@ -25,6 +25,8 @@
 
 using namespace std;
 
+
+
 int main(int argc, char **argv)
 {
     int *const image = new int[HEIGHT * WIDTH];
@@ -34,6 +36,9 @@ int main(int argc, char **argv)
     for (int y = 0; y < HEIGHT; y++)
     {
         const double row = y * STEP + MIN_Y;
+
+        // calculation of the entire imaginary part of c out of the loop 
+
         for (int x = 0; x < WIDTH; x++)
         {
             const int pos = y * WIDTH + x;

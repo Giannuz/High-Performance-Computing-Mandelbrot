@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 
     const auto start = chrono::steady_clock::now();
 
-    const double step_width = STEP/WIDTH;
+    const double step_width = STEP/WIDTH; // component of the imaginary part `STEP`/`WIDTH` of the variable c outside the for loop.
 
     for (int pos = 0; pos < HEIGHT * WIDTH; pos++)
     {
