@@ -52,6 +52,35 @@ This algorithm makes it possible to iterate over the space of the complex number
 
 The part to be optimised in this algorithm is (obviously) the entire for loop, this is confirmed both by the compiler report and by ONEAPI, which reports that there is a bottleneck in that loop (especially in the innermost for loop).
 
+```
+LOOP BEGIN at mandelbrot.cpp(33,5)
+   remark #25096: Loop Interchange not done due to: Imperfect Loop Nest (Either at Source or due to other Compiler Transformations)
+   remark #25451: Advice: Loop Interchange, if possible, might help loopnest. Suggested Permutation : ( 1 2 ) --> ( 2 1 ) 
+   remark #15541: outer loop was not auto-vectorized: consider using SIMD directive
+
+   LOOP BEGIN at mandelbrot.cpp(43,9)
+      remark #15520: loop was not vectorized: loop with multiple exits cannot be vectorized unless it meets search loop idiom criteria   [ mandelbrot.cpp(48,13) ]
+   LOOP END
+LOOP END
+
+LOOP BEGIN at mandelbrot.cpp(78,9)
+   remark #26015: Exception can be thrown by the call to std::basic_ostream<char, std::char_traits<char>>::operator<<(std::basic_ostream<char, std::char_traits<char>> *, int)   [ mandelbrot.cpp(80,24) ]
+   remark #15333: loop was not vectorized: exception handling for a call prevents vectorization   [ mandelbrot.cpp(80,24) ]
+LOOP END
+
+
+Non-optimizable loops:
+
+
+LOOP BEGIN at mandelbrot.cpp(76,5)
+   remark #15333: loop was not vectorized: exception handling for a call prevents vectorization   [ mandelbrot.cpp(80,24) ]
+LOOP END
+
+    Report from: Code generation optimizations [cg]
+```
+
+The full report can be found in Reports/mandelbrot.optrpt
+
 #### Method of collecting execution times
 
 All the changes that will be shown in the following paragraphs have been tested with four main configurations:
@@ -458,7 +487,9 @@ Given these reasons (and thanks to the help of some tests) we opted for a schedu
 
 As is evident, scheduling greatly improves code execution compared to versions that do not support it.
 
-##### CUDA
+<div style="page-break-after: always; break-after: page;"></div>
+
+### CUDA
 
 Given the results obtained in parallelism and vectorization we decided to take into consideration only the mandelbrot6 version. 
 
@@ -648,6 +679,8 @@ We have included four different versions:
   ```cpp
   float stripeFact = 0.5;
   ```
+
+<div style="page-break-after: always; break-after: page;"></div>
 
 ###### Results
 
