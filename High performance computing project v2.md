@@ -411,8 +411,6 @@ It could perhaps be solved by swapping the innermost for and one of the two oute
 | ![](assets/2024-06-06-17-03-36-image.png) | ![](assets/2024-06-06-17-03-46-image.png) |
 | ----------------------------------------- | ----------------------------------------- |
 
-<mark>INSERIRE GRAFICI QUÌ (first 2 or 3 graphs in "Grafici Tempi" and "Grafici Speedup")</mark>
-
 As we can see the compiler (with the right flags) is able to significantly improve the execution time of the original script (and all our variants), the codes that have benefited the most are from mandelbrot6 to mandelbrot8a, reaching execution times with the basic resolution (1k-1k) of 1.7s against the 5 seconds of the original version in the best case.
 
 <div style="page-break-after: always; break-after: page;"></div>
@@ -466,8 +464,6 @@ As we said, the 8a has been modified to allow us to add the "omp for" pragma. We
 | ----------------------------------------- | ----------------------------------------- |
 | ![](assets/2024-06-06-17-12-14-image.png) | ![](assets/2024-06-06-17-12-02-image.png) |
 
-<mark>INSERIRE GRAFICI QUÌ (first 2 graphs on the third row in "Grafici Tempi" and "Grafici Speedup")</mark>
-
 The image on the left gives a more detailed idea of execution times with different thread configurations while the one on the right shows us the same thing but with an exponential trend in order to have a more general view (both generated with flags Ofast and xHost).
 
 As we can see, as the number of threads increases, performance tends to increase until it reaches the threshold of 64 threads, after which performance tends to worsen due to the overhead caused by the execution of so many threads.
@@ -483,9 +479,7 @@ Given these reasons (and thanks to the help of some tests) we opted for a schedu
 | ----------------------------------------- | ----------------------------------------- |
 | ![](assets/2024-06-06-17-15-07-image.png) | ![](assets/2024-06-06-17-15-18-image.png) |
 
-<mark>INSERIRE GRAFICI QUÌ (first 2 graphs on the fourth row in "Grafici Tempi" and "Grafici Speedup")</mark>
-
-As is evident, scheduling greatly improves code execution compared to versions that do not support it.
+As is evident, scheduling greatly improves code execution compared to versions that do not use it thanks to threads balancing.
 
 <div style="page-break-after: always; break-after: page;"></div>
 
@@ -498,7 +492,7 @@ We have included four different versions:
 - **mandelbrot6a**: same as the vectorised version, but we include the kernel call only on one dimension
   
   ```cpp
-  global void cuda_mandelbrot(int* image)
+  __global__ void cuda_mandelbrot(int* image)
   {
       int y = blockIdx.x * blockDim.x + threadIdx.x;
   
@@ -691,7 +685,7 @@ We have included four different versions:
 
 These graphs (generated with flags Ofast and xHost) were created with the 1k-1k configuration and due to the size of it the results are more or less quite similar, with the 6c being slightly better.
 
-In the second "heatmap" it is clear how the best configurations are all concentrated around the configuration with x = 4/8 as it is the best compromise between the maximum size of the blocks and the number of adjacent complex points that have more or less different iteration numbers to converge.
+In the second "heatmap" of the first row it is clear how the best configurations are all concentrated around the configuration with x = 4/8 as it is the best compromise between the maximum size of the blocks and the number of adjacent complex points that have more or less different iteration numbers to converge.
 
 Version 6a has very similar behavior to the one parallelized with OMP (except for execution times, as CUDA must save data from GPU memory to CPU memory).
 As for the 6b-c-d there is always the question of compromise on block size and as for 6a it is clear that the best configurations always follow a number of threads equal to 32/64.
@@ -710,7 +704,14 @@ Below we report the results of the processing carried out with the remaining con
 
 <mark>GRAFICI QUÌ</mark>
 
-As you can see, the parallelized versions are better than the parallelized versions and, specifically, those obtained with OMP are the best (speedup of 500), as we have already seen for the 1k-1k configuration, as the size of the problem increases, the gap in terms of performance between the various versions remains unchanged.
+|                                       | 10k-1k               | 10k-10k  |
+| ------------------------------------- | -------------------- | -------- |
+| vectorized (vanilla)                  | ~ 21min              | ~ 89min  |
+| vectorized (mandelbrot6)              | ~ 3 min              | ~ 29 min |
+| parallelized scheduling (mandelbrot6) | (see previous graph) | 78.57s   |
+| CUDA (mandelbrot6c)                   | (see previous graph) | ~ 5 min  |
+
+As you can see, the parallelized versions are better than the CUDA versions and, specifically, those obtained with OMP are the best (speedup of 500), as we have already seen for the 1k-1k configuration, as the size of the problem increases, the gap in terms of performance between the various versions remains unchanged.
 
 <div style="page-break-after: always; break-after: page;"></div>
 
@@ -721,4 +722,4 @@ Some renderings of the results we got by running the optimized codes:
 
 ![](assets/2024-06-07-15-48-45-image.png)
 
-The code used to convert the text output to image can be found on Google Colab.
+The code used to convert the text output to image can be found on [Google Colab](https://colab.research.google.com/drive/1MdPbn7ejMLNaUp6ehm04_UqnW1cY4Myr?usp=sharing).
