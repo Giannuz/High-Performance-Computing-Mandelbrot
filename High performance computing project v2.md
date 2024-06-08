@@ -85,7 +85,7 @@ The full report can be found in Reports/mandelbrot.optrpt
 
 All the changes that will be shown in the following paragraphs have been tested with four main configurations:
 
-| **configuration name** | 1k-1k | 1k-10k | 10k-1k | 10k-10k |
+| **Configuration Name** | 1k-1k | 1k-10k | 10k-1k | 10k-10k |
 | ---------------------- | ----- | ------ | ------ | ------- |
 | **RESOLUTION**         | 1000  | 1000   | 10000  | 10000   |
 | **ITERATIONS**         | 1000  | 10000  | 1000   | 10000   |
@@ -109,12 +109,45 @@ First we noticed that the component of the imaginary `STEP`/`WIDTH` part of the 
 ```cpp
 const double step_width = STEP/WIDTH;
 
-    for (int pos = 0; pos < HEIGHT * WIDTH; pos++)
+for (int pos = 0; pos < HEIGHT * WIDTH; pos++)
+{
+    image[pos] = 0;
+
+    const int col = pos % WIDTH;
+    const complex<double> c(col * STEP + MIN_X, pos * step_width + MIN_Y);
+
+    // z = z^2 + c
+    complex<double> z(0, 0);
+    for (int i = 1; i <= ITERATIONS; i++)
     {
+        z = pow(z, 2) + c;
+
+        // If it is convergent
+        if (abs(z) >= 2)
+        {
+            image[pos] = i;
+            break;
+        }
+    }
+}
+```
+
+
+This modification can be found in the file Vectorized/mandelbrot1.cpp
+
+<div style="page-break-after: always; break-after: page;"></div>
+
+The next change was to split the outermost `for` so as to exploit 2 different coordinates (X,Y) in order to have more freedom when parallelising and because in this way we can avoid calculating the variable `col` at each iteration.
+
+```cpp
+for (int y = 0; y < HEIGHT; y++)
+{
+    for (int x = 0; x < WIDTH; x++)
+    {
+        const int pos = y * WIDTH + x;
         image[pos] = 0;
 
-        const int col = pos % WIDTH;
-        const complex<double> c(col * STEP + MIN_X, pos * step_width + MIN_Y);
+        const complex<double> c(x * STEP + MIN_X, y * STEP + MIN_Y);
 
         // z = z^2 + c
         complex<double> z(0, 0);
@@ -130,73 +163,41 @@ const double step_width = STEP/WIDTH;
             }
         }
     }
-```
-
-This modification can be found in the file Vectorized/mandelbrot1.cpp
-
-<div style="page-break-after: always; break-after: page;"></div>
-
-The next change was to split the outermost `for` so as to exploit 2 different coordinates (X,Y) in order to have more freedom when parallelising and because in this way we can avoid calculating the variable `col` at each iteration.
-
-```cpp
-for (int y = 0; y < HEIGHT; y++)
-    {
-        for (int x = 0; x < WIDTH; x++)
-        {
-            const int pos = y * WIDTH + x;
-            image[pos] = 0;
-
-            const complex<double> c(x * STEP + MIN_X, y * STEP + MIN_Y);
-
-            // z = z^2 + c
-            complex<double> z(0, 0);
-            for (int i = 1; i <= ITERATIONS; i++)
-            {
-                z = pow(z, 2) + c;
-
-                // If it is convergent
-                if (abs(z) >= 2)
-                {
-                    image[pos] = i;
-                    break;
-                }
-            }
-        }
-    }
-```
+}
+``
 
 This modification can be found in the file Vectorized/mandelbrot2.cpp
 
 <div style="page-break-after: always; break-after: page;"></div>
 
-We then moved the entire imaginary part of the variable c outside the loop `for (int x = 0; x < WIDTH; x++)` as it is sufficient to calculate it once as well (we did not do the same with `y * WIDTH` in `const int pos = y * WIDTH + x;` as it would then be converted into a fma and thus it make no difference).
+We then moved the entire imaginary part of the variable c outside the loop `for (int x = 0; x < WIDTH; x++)` as it is sufficient to calculate it once as well (we did not do the same with `y * WIDTH` in `const int pos = y * WIDTH + x;` as it would then be converted into a FMA and thus it makes no difference).
 
 ```cpp
 for (int y = 0; y < HEIGHT; y++)
+{
+    const double row = y * STEP + MIN_Y;
+    for (int x = 0; x < WIDTH; x++)
     {
-        const double row = y * STEP + MIN_Y;
-        for (int x = 0; x < WIDTH; x++)
+        const int pos = y * WIDTH + x;
+        image[pos] = 0;
+
+        const complex<double> c(x * STEP + MIN_X, row);
+
+        // z = z^2 + c
+        complex<double> z(0, 0);
+        for (int i = 1; i <= ITERATIONS; i++)
         {
-            const int pos = y * WIDTH + x;
-            image[pos] = 0;
+            z = pow(z, 2) + c;
 
-            const complex<double> c(x * STEP + MIN_X, row);
-
-            // z = z^2 + c
-            complex<double> z(0, 0);
-            for (int i = 1; i <= ITERATIONS; i++)
+            // If it is convergent
+            if (abs(z) >= 2)
             {
-                z = pow(z, 2) + c;
-
-                // If it is convergent
-                if (abs(z) >= 2)
-                {
-                    image[pos] = i;
-                    break;
-                }
+                image[pos] = i;
+                break;
             }
         }
     }
+}
 ```
 
 This modification can be found in the file Vectorized/mandelbrot3.cpp
@@ -208,69 +209,69 @@ The next modification we decided to make is to exploit the symmetry of the compl
 ```cpp
 const int HALF_HEIGHT = ceil((float) HEIGHT/2);
 
-    for (int y = 0; y < HALF_HEIGHT; y++)
+for (int y = 0; y < HALF_HEIGHT; y++)
+{
+    const double row = y * STEP + MIN_Y;
+    for (int x = 0; x < WIDTH; x++)
     {
-        const double row = y * STEP + MIN_Y;
-        for (int x = 0; x < WIDTH; x++)
+        const int pos1 = y * WIDTH + x,
+                  pos2 = (HEIGHT - y - 1) * WIDTH + x;
+        image[pos1] = image[pos2] = 0;
+
+        const complex<double> c(x * STEP + MIN_X, row);
+
+        // z = z^2 + c
+        complex<double> z(0, 0);
+        for (int i = 1; i <= ITERATIONS; i++)
         {
-            const int pos1 = y * WIDTH + x,
-                      pos2 = (HEIGHT - y - 1) * WIDTH + x;
-            image[pos1] = image[pos2] = 0;
+            z = pow(z, 2) + c;
 
-            const complex<double> c(x * STEP + MIN_X, row);
-
-            // z = z^2 + c
-            complex<double> z(0, 0);
-            for (int i = 1; i <= ITERATIONS; i++)
+            // If it is convergent
+            if (abs(z) >= 2)
             {
-                z = pow(z, 2) + c;
-
-                // If it is convergent
-                if (abs(z) >= 2)
-                {
-                    image[pos1] = image[pos2] = i;
-                    break;
-                }
+                image[pos1] = image[pos2] = i;
+                break;
             }
         }
     }
+}
 ```
 
 This modification can be found in the file Vectorized/mandelbrot4.cpp
 
 <div style="page-break-after: always; break-after: page;"></div>
 
-Another small change we made was to move the part `(HEIGHT - y - 1)` in `pos2 = (HEIGHT - y - 1) * WIDTH + x;` outside the for loop, again to avoid calculating the same result several times. (in this case too we have left WIDTH inside the for loop because it is then converted into an fma).
+Another small change we made was to move the part `(HEIGHT - y - 1)` in `pos2 = (HEIGHT - y - 1) * WIDTH + x;` outside the for loop, again to avoid calculating the same result several times. (in this case too we have left WIDTH inside the for loop because it is then converted into an FMA).
 
 ```cpp
 for (int y = 0; y < HALF_HEIGHT; y++)
+{
+    const double row = y * STEP + MIN_Y;
+    const int y2 = HEIGHT - y - 1;
+
+    for (int x = 0; x < WIDTH; x++)
     {
-        const double row = y * STEP + MIN_Y;
-        const int y2 = HEIGHT - y - 1;
+        const int pos1 = y * WIDTH + x,
+                  pos2 = y2 * WIDTH + x; 
+        image[pos1] = image[pos2] = 0;
 
-        for (int x = 0; x < WIDTH; x++)
+        const complex<double> c(x * STEP + MIN_X, row);
+
+        // z = z^2 + c
+        complex<double> z(0, 0);
+        for (int i = 1; i <= ITERATIONS; i++)
         {
-            const int pos1 = y * WIDTH + x,
-                      pos2 = y2 * WIDTH + x; 
-            image[pos1] = image[pos2] = 0;
+            z = pow(z, 2) + c;
 
-            const complex<double> c(x * STEP + MIN_X, row);
-
-            // z = z^2 + c
-            complex<double> z(0, 0);
-            for (int i = 1; i <= ITERATIONS; i++)
+            // If it is convergent
+            if (abs(z) >= 2)
             {
-                z = pow(z, 2) + c;
-
-                // If it is convergent
-                if (abs(z) >= 2)
-                {
-                    image[pos1] = image[pos2] = i;
-                    break;
-                }
+                image[pos1] = image[pos2] = i;
+                break;
             }
         }
     }
+}
 ```
 
 This modification can be found in the file Vectorized/mandelbrot5.cpp
@@ -283,61 +284,61 @@ We therefore used double variables instead of the library to represent the imagi
 
 ```cpp
 for (int y = 0; y < HALF_HEIGHT; y++)
+{
+    const double ci = y * STEP + MIN_Y;
+    const int y2 = HEIGHT - y - 1;
+
+    for (int x = 0; x < WIDTH; x++)
     {
-        const double ci = y * STEP + MIN_Y;
-        const int y2 = HEIGHT - y - 1;
+        const int pos1 = y * WIDTH + x,
+                  pos2 = y2 * WIDTH + x;
+        image[pos1] = image[pos2] = 0;
 
-        for (int x = 0; x < WIDTH; x++)
+        const double cr = x * STEP + MIN_X;
+
+        // z = z^2 + c
+        double zr = 0.0, zi = 0.0, zr2 = 0.0, zi2 = 0.0;
+        for (int i = 1; i <= ITERATIONS; i++)
         {
-            const int pos1 = y * WIDTH + x,
-                      pos2 = y2 * WIDTH + x;
-            image[pos1] = image[pos2] = 0;
+            zi = 2 * zr * zi + ci;
+            zr = zr2 - zi2 + cr;
 
-            const double cr = x * STEP + MIN_X;
+            zr2 = zr * zr;
+            zi2 = zi * zi;
 
-            // z = z^2 + c
-            double zr = 0.0, zi = 0.0, zr2 = 0.0, zi2 = 0.0;
-            for (int i = 1; i <= ITERATIONS; i++)
+            // If it is convergent
+            if (zr2 + zi2 >= 4)
             {
-                zi = 2 * zr * zi + ci;
-                zr = zr2 - zi2 + cr;
-
-                zr2 = zr * zr;
-                zi2 = zi * zi;
-
-                // If it is convergent
-                if (zr2 + zi2 >= 4)
-                {
-                    image[pos1] = image[pos2] = i;
-                    break;
-                }
+                image[pos1] = image[pos2] = i;
+                break;
             }
         }
     }
+}
 ```
 
 This modification can be found in the file Vectorized/mandelbrot6.cpp
 
 <div style="page-break-after: always; break-after: page;"></div>
 
-A further small change we made was to add the calculation of `zr` and `zr2` to have all the expressions in a fma format (it is an operation that the compiler theoretically carries out automatically but we wanted to make it explicit).
+A further small change we made was to add the calculation of `zr` and `zr2` to have all the expressions in a FMA format (it is an operation that the compiler theoretically carries out automatically but we wanted to make it explicit).
 
 ```cpp
 zi = zr * zi + ci;
-                zr = zr2 + cr;
+zr = zr2 + cr;
 
-                zr2 = zr * zr;
-                zi2 = zi * zi;
+zr2 = zr * zr;
+zi2 = zi * zi;
 
-                // If it is convergent
-                if (zr2 + zi2 >= 4)
-                {
-                    image[pos1] = image[pos2] = i;
-                    break;
-                }
+// If it is convergent
+if (zr2 + zi2 >= 4)
+{
+    image[pos1] = image[pos2] = i;
+    break;
+}
 
-                zr *= 2;
-                zr2 -= zi2;
+zr *= 2;
+zr2 -= zi2;
 ```
 
 This modification can be found in the file Vectorized/mandelbrot7.cpp
@@ -348,47 +349,47 @@ We then tried to move the copy of `pos2` data outside of all the for loops in or
 
 ```cpp
 for (int y = 0; y < HALF_HEIGHT; y++)
+{
+    const double ci = y * STEP + MIN_Y;
+
+    for (int x = 0; x < WIDTH; x++)
     {
-        const double ci = y * STEP + MIN_Y;
+        const int pos = y * WIDTH + x;
+        image[pos] = 0;
 
-        for (int x = 0; x < WIDTH; x++)
+        const double cr = x * STEP + MIN_X;
+
+        // z = z^2 + c
+        double zr = 0.0, zi = 0.0, zr2 = 0.0, zi2 = 0.0;
+        for (int i = 1; i <= ITERATIONS; i++)
         {
-            const int pos = y * WIDTH + x;
-            image[pos] = 0;
+            zi = zr * zi + ci;
+            zr = zr2 + cr;
 
-            const double cr = x * STEP + MIN_X;
+            zr2 = zr * zr;
+            zi2 = zi * zi;
 
-            // z = z^2 + c
-            double zr = 0.0, zi = 0.0, zr2 = 0.0, zi2 = 0.0;
-            for (int i = 1; i <= ITERATIONS; i++)
+            // If it is convergent
+            if (zr2 + zi2 >= 4)
             {
-                zi = zr * zi + ci;
-                zr = zr2 + cr;
-
-                zr2 = zr * zr;
-                zi2 = zi * zi;
-
-                // If it is convergent
-                if (zr2 + zi2 >= 4)
-                {
-                    image[pos] = i;
-                    break;
-                }
-
-                zr = 2;
-                zr2 -= zi2;
+                image[pos] = i;
+                break;
             }
+
+            zr = 2;
+            zr2 -= zi2;
         }
     }
+}
 
-    for (int y = 0; y < HALF_HEIGHT; y++)
+for (int y = 0; y < HALF_HEIGHT; y++)
+{
+    const int y2 = HEIGHT - y - 1;
+    for (int x = 0; x < WIDTH; x++)
     {
-        const int y2 = HEIGHT - y - 1;
-        for (int x = 0; x < WIDTH; x++)
-        {
-            image[y2] = image[y * WIDTH + x];
-        }
-    } 
+        image[y2] = image[y * WIDTH + x];
+    }
+} 
 ```
 
 This modification can be found in the file Vectorized/mandelbrot8a.cpp
@@ -423,10 +424,10 @@ The changes we have made are limited to adding pragmas:
 
 ```cpp
 #pragma omp parallel for
-    for (int y = 0; y < HALF_HEIGHT; y++)
-    {
-        ...
-    }
+for (int y = 0; y < HALF_HEIGHT; y++)
+{
+    ...
+}
 ```
 
 This modification can be found in the file OpenMP/Base/mandelbrot6.cpp
@@ -441,19 +442,19 @@ As we said, the 8a has been modified to allow us to add the "omp for" pragma. We
 
 ```cpp
 #pragma omp parallel
+{
+    #pragma omp for
+    for (int y = 0; y < HALF_HEIGHT; y++)
     {
-        #pragma omp for
-        for (int y = 0; y < HALF_HEIGHT; y++)
-        {
-            ...
-        }
-
-        #pragma omp for
-        for (int y = 0; y < HALF_HEIGHT; y++)
-        {
-            ...
-        }
+        ...
     }
+
+    #pragma omp for
+    for (int y = 0; y < HALF_HEIGHT; y++)
+    {
+        ...
+    }
+}
 ```
 
 <div style="page-break-after: always; break-after: page;"></div>
@@ -462,7 +463,7 @@ As we said, the 8a has been modified to allow us to add the "omp for" pragma. We
 
 | ![](assets/2024-06-06-17-12-57-image.png) | ![](assets/2024-06-06-17-13-36-image.png) |
 | ----------------------------------------- | ----------------------------------------- |
-| ![](assets/2024-06-06-17-12-14-image.png) | ![](assets/2024-06-06-17-12-02-image.png) |
+| ![](assets/2024-06-06-17-11-42-image.png) | ![](assets/2024-06-06-17-11-52-image.png) |
 
 The image on the left gives a more detailed idea of execution times with different thread configurations while the one on the right shows us the same thing but with an exponential trend in order to have a more general view (both generated with flags Ofast and xHost).
 
@@ -603,7 +604,7 @@ We have included four different versions:
 - **mandelbrot6c**: like version 6b but also as 8a: instead of sending the entire array to cuda, only half is calculated on the GPU and the other half it's copied by the CPU
   
   ```cpp
-  global void cuda_mandelbrot(int* image)
+  __global__ void cuda_mandelbrot(int* image)
   {
       int x = blockIdx.x * blockDim.x + threadIdx.x;
       int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -678,10 +679,9 @@ We have included four different versions:
 
 ###### Results
 
-| ![](assets/2024-05-03-11-23-51-Senza%20titolo.png)                         | ![](assets/2024-05-03-11-23-55-Senza%20titolo.png)                          |
-| -------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| ![](assets/2024-06-06-17-33-32-time_data_cuda_1k1k%20-%20mandelbrot6c.png) | ![](assets/2024-06-06-17-33-45-time_data_cuda_1k10k%20-%20mandelbrot6c.png) |
-| ![](assets/2024-06-06-17-34-11-time_data_cuda_1k1k%20-%20mandelbrot6d.png) | ![](assets/2024-06-06-17-34-24-time_data_cuda_10k1k%20-%20mandelbrot6c.png) |
+| ![](assets/time_data_cuda_1k1k%20-%20mandelbrot6a.png) | ![](assets/time_data_cuda_1k1k%20-%20mandelbrot6b.png) |
+| ----------------------------------------- | ----------------------------------------- |
+| ![](assets/time_data_cuda_1k1k%20-%20mandelbrot6c.png) | ![](assets/time_data_cuda_1k1k%20-%20mandelbrot6d.png) |
 
 These graphs (generated with flags Ofast and xHost) were created with the 1k-1k configuration and due to the size of it the results are more or less quite similar, with the 6c being slightly better.
 
@@ -700,16 +700,26 @@ In the CUDA and OMP versions we instead tried all the thread configurations to s
 
 For the 10k-10k in the vectorized case we measured the original version compared with our version 6, in parallelism we conformed version 6 with scheduling and in the CUDA version we always analyze 6c (for the last two we measured the best thread configurations again due to time constraints).
 
-Below we report the results of the processing carried out with the remaining configurations:
+Below we report the results of the processing carried out with the remaining configurations (speedup graphs are not reported because they are identical to the previous ones):
 
-<mark>GRAFICI QUÌ</mark>
+| ![](assets/Vect1k10k.png) |  |
+| ----------------------------------------- | ----------------------------------------- |
+| ![](assets/ParBase1k10k.png) | ![](assets/ParSched1k10k.png) |
+| ----------------------------------------- | ----------------------------------------- |
+| ![](assets/ParSched10k1k.png) | ![](assets/time_data_cuda_1k10k%20-%20mandelbrot6a.png) |
+| ----------------------------------------- | ----------------------------------------- |
+| ![](assets/time_data_cuda_1k10k%20-%20mandelbrot6b.png) | ![](assets/time_data_cuda_1k10k%20-%20mandelbrot6b.png) |
+| ----------------------------------------- | ----------------------------------------- |
+| ![](assets/time_data_cuda_1k10k%20-%20mandelbrot6c.png) | ![](assets/time_data_cuda_1k10k%20-%20mandelbrot6d.png) |
+| ----------------------------------------- | ----------------------------------------- |
+| ![](assets/time_data_cuda_10k1k%20-%20mandelbrot6c.png) |  |
 
 |                                       | 10k-1k               | 10k-10k  |
 | ------------------------------------- | -------------------- | -------- |
-| vectorized (vanilla)                  | ~ 21min              | ~ 89min  |
-| vectorized (mandelbrot6)              | ~ 3 min              | ~ 29 min |
-| parallelized scheduling (mandelbrot6) | (see previous graph) | 78.57s   |
-| CUDA (mandelbrot6c)                   | (see previous graph) | ~ 5 min  |
+| mandelbrot (Vectorized)                  | ~ 21min              | ~ 89min  |
+| mandelbrot6 (Vectorized)              | ~ 3 min              | ~ 29 min |
+| mandelbrot6 (Parallelized Scheduling) | (see previous graph) | 78.57s   |
+| mandelbrot6c (CUDA)                   | (see previous graph) | ~ 5 min  |
 
 As you can see, the parallelized versions are better than the CUDA versions and, specifically, those obtained with OMP are the best (speedup of 500), as we have already seen for the 1k-1k configuration, as the size of the problem increases, the gap in terms of performance between the various versions remains unchanged.
 
