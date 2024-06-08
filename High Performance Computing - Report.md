@@ -1,3 +1,5 @@
+Samuele Pellegrini 4951487 | Michele D'Ambrosio 4985378
+
 # High performance computing project
 
 ## Optimisation of the Mandelbrot set
