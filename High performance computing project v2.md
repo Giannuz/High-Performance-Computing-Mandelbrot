@@ -132,10 +132,9 @@ for (int pos = 0; pos < HEIGHT * WIDTH; pos++)
 }
 ```
 
-
 This modification can be found in the file Vectorized/mandelbrot1.cpp
 
-<div style="page-break-after: always; break-after: page;"></div>
+---
 
 The next change was to split the outermost `for` so as to exploit 2 different coordinates (X,Y) in order to have more freedom when parallelising and because in this way we can avoid calculating the variable `col` at each iteration.
 
@@ -679,9 +678,10 @@ We have included four different versions:
 
 ###### Results
 
-| ![](assets/time_data_cuda_1k1k%20-%20mandelbrot6a.png) | ![](assets/time_data_cuda_1k1k%20-%20mandelbrot6b.png) |
-| ----------------------------------------- | ----------------------------------------- |
-| ![](assets/time_data_cuda_1k1k%20-%20mandelbrot6c.png) | ![](assets/time_data_cuda_1k1k%20-%20mandelbrot6d.png) |
+<img title="" src="assets/time_data_cuda_1k1k%20-%20mandelbrot6a.png" alt="" data-align="center" width="451">
+
+| ![](assets/time_data_cuda_1k1k%20-%20mandelbrot6b.png) | ![](assets/time_data_cuda_1k1k%20-%20mandelbrot6c.png) | ![](assets/time_data_cuda_1k1k%20-%20mandelbrot6d.png) |
+| ------------------------------------------------------ | ------------------------------------------------------ | ------------------------------------------------------ |
 
 These graphs (generated with flags Ofast and xHost) were created with the 1k-1k configuration and due to the size of it the results are more or less quite similar, with the 6c being slightly better.
 
@@ -700,23 +700,21 @@ In the CUDA and OMP versions we instead tried all the thread configurations to s
 
 For the 10k-10k in the vectorized case we measured the original version compared with our version 6, in parallelism we conformed version 6 with scheduling and in the CUDA version we always analyze 6c (for the last two we measured the best thread configurations again due to time constraints).
 
-Below we report the results of the processing carried out with the remaining configurations (speedup graphs are not reported because they are identical to the previous ones):
+Below we report the results of the processing carried out with the remaining configurations (speedup graphs are not reported because they are identical to the previous ones):<img title="" src="assets/Vect1k10k.png" alt="" data-align="center" width="342">
 
-| ![](assets/Vect1k10k.png) |  |
-| ----------------------------------------- | ----------------------------------------- |
-| ![](assets/ParBase1k10k.png) | ![](assets/ParSched1k10k.png) |
-| ----------------------------------------- | ----------------------------------------- |
+| ![](assets/ParBase1k10k.png)  | ![](assets/ParSched1k10k.png)                           |
+| ----------------------------- | ------------------------------------------------------- |
+|                               |                                                         |
 | ![](assets/ParSched10k1k.png) | ![](assets/time_data_cuda_1k10k%20-%20mandelbrot6a.png) |
-| ----------------------------------------- | ----------------------------------------- |
+
 | ![](assets/time_data_cuda_1k10k%20-%20mandelbrot6b.png) | ![](assets/time_data_cuda_1k10k%20-%20mandelbrot6b.png) |
-| ----------------------------------------- | ----------------------------------------- |
+| ------------------------------------------------------- | ------------------------------------------------------- |
 | ![](assets/time_data_cuda_1k10k%20-%20mandelbrot6c.png) | ![](assets/time_data_cuda_1k10k%20-%20mandelbrot6d.png) |
-| ----------------------------------------- | ----------------------------------------- |
-| ![](assets/time_data_cuda_10k1k%20-%20mandelbrot6c.png) |  |
+| ![](assets/time_data_cuda_10k1k%20-%20mandelbrot6c.png) |                                                         |
 
 |                                       | 10k-1k               | 10k-10k  |
 | ------------------------------------- | -------------------- | -------- |
-| mandelbrot (Vectorized)                  | ~ 21min              | ~ 89min  |
+| mandelbrot (Vectorized)               | ~ 21min              | ~ 89min  |
 | mandelbrot6 (Vectorized)              | ~ 3 min              | ~ 29 min |
 | mandelbrot6 (Parallelized Scheduling) | (see previous graph) | 78.57s   |
 | mandelbrot6c (CUDA)                   | (see previous graph) | ~ 5 min  |
