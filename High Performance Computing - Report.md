@@ -480,9 +480,9 @@ Given these reasons (and thanks to the help of some tests) we opted for a schedu
 #pragma omp parallel for schedule(dynamic, 1)
 ```
 
-| ![](assets/2024-06-06-17-14-31-image.png)  | ![](assets/2024-06-06-17-15-18-image.png) |
-| ----------------------------------------- | ------------------------------------------ |
-| ![](assets/ParSchedV2-Efficiency.png) |  |
+| ![](assets/2024-06-06-17-14-31-image.png) | ![](assets/2024-06-06-17-15-18-image.png) |
+| ----------------------------------------- | ----------------------------------------- |
+| ![](assets/ParSchedV2-Efficiency.png)     |                                           |
 
 As is evident, scheduling greatly improves code execution compared to versions that do not use it thanks to threads balancing.
 
@@ -691,12 +691,12 @@ We have included four different versions:
 <img title="" src="assets/Cuda-Mandelbrot6a-Speedup.png" alt="" data-align="center" width="451">
 
 | ![](assets/speedup_cuda_1k1k%20-%20mandelbrot6b.png) | ![](assets/speedup_cuda_1k1k%20-%20mandelbrot6c.png) | ![](assets/speedup_cuda_1k1k%20-%20mandelbrot6d.png) |
-| ------------------------------------------------------ | ------------------------------------------------------ | ------------------------------------------------------ |
+| ---------------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------- |
 
 <img title="" src="assets/Cuda-Mandelbrot6a-Efficiency.png" alt="" data-align="center" width="451">
 
 | ![](assets/efficiency_cuda_1k1k%20-%20mandelbrot6b.png) | ![](assets/efficiency_cuda_1k1k%20-%20mandelbrot6c.png) | ![](assets/efficiency_cuda_1k1k%20-%20mandelbrot6d.png) |
-| ------------------------------------------------------ | ------------------------------------------------------ | ------------------------------------------------------ |
+| ------------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------- |
 
 These graphs (generated with flags Ofast and xHost) were created with the 1k-1k configuration and due to the size of it the results are more or less quite similar, with the 6c being slightly better.
 
