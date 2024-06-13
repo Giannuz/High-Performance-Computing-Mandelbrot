@@ -36,7 +36,7 @@ int main(int argc, char **argv)
     for (int y = 0; y < HALF_HEIGHT; y++)
     {
         const double row = y * STEP + MIN_Y;
-        const int y2 = HEIGHT - y - 1;
+        const int y2 = HEIGHT - y - 1; // We avoid calculating the same result several times
         
         for (int x = 0; x < WIDTH; x++)
         {

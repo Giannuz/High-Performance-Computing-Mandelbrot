@@ -466,6 +466,9 @@ As we said, the 8a has been modified to allow us to add the "omp for" pragma. We
 | ----------------------------------------- | ----------------------------------------- |
 | ![](assets/2024-06-06-17-11-42-image.png) | ![](assets/2024-06-06-17-11-52-image.png) |
 
+| ![](assets/2024-06-11-18-33-59-ParBaseV1-Efficiency.png) | ![](assets/2024-06-11-18-34-07-ParBaseV2-Efficiency.png) |
+| -------------------------------------------------------- | -------------------------------------------------------- |
+
 The image on the left gives a more detailed idea of execution times with different thread configurations while the one on the right shows us the same thing but with an exponential trend in order to have a more general view (both generated with flags Ofast and xHost).
 
 As we can see, as the number of threads increases, performance tends to increase until it reaches the threshold of 64 threads, after which performance tends to worsen due to the overhead caused by the execution of so many threads.
@@ -477,9 +480,12 @@ Given these reasons (and thanks to the help of some tests) we opted for a schedu
 #pragma omp parallel for schedule(dynamic, 1)
 ```
 
-| ![](assets/2024-06-06-17-14-18-image.png) | ![](assets/2024-06-06-17-14-31-image.png) |
-| ----------------------------------------- | ----------------------------------------- |
-| ![](assets/2024-06-06-17-15-07-image.png) | ![](assets/2024-06-06-17-15-18-image.png) |
+| ![](assets/2024-06-06-17-14-18-image.png) | ![](assets/2024-06-06-17-14-31-image.png)  |
+| ----------------------------------------- | ------------------------------------------ |
+| ![](assets/2024-06-06-17-15-07-image.png) | ![](assets/2024-06-06-17-15-18-image.png)S |
+
+| ![](assets/2024-06-11-18-34-14-ParSchedV1-Efficiency.png) | ![](assets/2024-06-11-18-34-18-ParSchedV2-Efficiency.png) |
+| --------------------------------------------------------- | --------------------------------------------------------- |
 
 As is evident, scheduling greatly improves code execution compared to versions that do not use it thanks to threads balancing.
 

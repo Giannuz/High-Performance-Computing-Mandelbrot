@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 
     const int HALF_HEIGHT = ceil((float) HEIGHT/2);
 
-    #pragma omp parallel for simd
+    #pragma omp parallel for simd // vectorize cycle we now have scalar and SIMD
     for (int y = 0; y < HALF_HEIGHT; y++)
     {
         const double ci = y * STEP + MIN_Y;

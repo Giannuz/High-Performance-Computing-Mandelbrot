@@ -35,9 +35,8 @@ int main(int argc, char **argv)
 
     for (int y = 0; y < HEIGHT; y++)
     {
-        const double row = y * STEP + MIN_Y;
-
         // calculation of the entire imaginary part of c out of the loop 
+        const double row = y * STEP + MIN_Y;
 
         for (int x = 0; x < WIDTH; x++)
         {
